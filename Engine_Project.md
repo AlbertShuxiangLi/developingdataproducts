@@ -13,8 +13,7 @@ VG (Variable Geometry) is calculated from 3 engine sensors (T2C, NG and IGV). Th
 This **ARIMA-LRM method** will be explained mathematically on next pages. 
 
 ## Original Thesis Cover
-<img src="images/thesis_cover.png" width="550px" height="550px" />
-
+<img src="images/thesis_cover.png" width="550px"" height="550px" />
 
 ## ARIMA-LRM Method  (1)
 Engine sensor data is a Time Series data.
