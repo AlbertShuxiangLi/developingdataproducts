@@ -96,11 +96,11 @@
 
 <p>This is a simplified form of our Systems Engineering thesis, &quot;A Method To Predict Compressor Stall In The TF34-100 Turbofan Engine Utilizing Real-Time Performance Data&quot;.</p>
 
-<p>Objective: Is there an engine compressor stall fault on next flight based on current flight engine data?</p>
+<p>Question to Answer: Is there an engine compressor stall fault on next flight based on current flight engine data?</p>
 
 <p>VG (Variable Geometry) is calculated from 3 engine sensors (T2C, NG and IGV). Then AutoRigression Integrated Moving Average (ARIMA) method is used for time series modeling. With sampled engine training dataset, a Linear Regression Model (LRM) is fitted to associat the predictors (ARIMA coefficients) to the outcome. Therefore, this LRM can be used to predict the chance of Engine Compressor Stall on next flight.</p>
 
-<p>This <strong>ARIMA-LRM method</strong> will be explained in detail mathematically later.</p>
+<p>This <strong>ARIMA-LRM method</strong> will be explained mathematically on next pages.</p>
 
 </article></slide><slide class=''><hgroup><h2>Original Thesis Cover</h2></hgroup><article  id="original-thesis-cover">
 
@@ -112,7 +112,7 @@
 
 <p>\[X_t = f(T2C, NG, IGV)\]</p>
 
-<p>\[X_t = \delta + AR_1X_{t-1} + AR_2X_{t-2} + ... + AR_pX_{t-p}\] \[+ A_t - MA_1A_{t-1} - MA_2A_{t-2} - ... - MA_qA_{t-q}\]</p>
+<p>\[X_t = \delta + AR_1X_{t-1} + AR_2X_{t-2} + ... + AR_pX_{t-p}\] \[+ A_t + MA_1A_{t-1} + MA_2A_{t-2} + ... + MA_qA_{t-q}\]</p>
 
 <p>Where \(X_t\) is the VG value at the time \(t\), \(AR_i(i=1,2, ..., p)\) is the AutoRegression (AR) coefficient, and \(MA_j, (j=1,2, ..., q)\) is the Moving Average (MA) coefficient.</p>
 
@@ -142,13 +142,13 @@ AR_{1_n} &amp; AR_{2_n} &amp; \dots &amp; AR_{p_n} &amp; MA_{1_n} &amp; MA_{2_n}
 
 </article></slide><slide class=''><hgroup><h2>ARIMA-LRM Method (3)</h2></hgroup><article  id="arima-lrm-method-3">
 
-<p>Therefore, a Linear Regression Model can be fitted as \[p(EngineCompressorStall) = \beta_0 + \displaystyle\sum_{i=1}^{p}\beta_i*AR_i + \displaystyle\sum_{j=1}^{q}\beta_{j+p}*MA_j + \epsilon\]</p>
+<p>Therefore, a Linear Regression Model can be fitted as \[p_{ecs} = \beta_0 + \displaystyle\sum_{i=1}^{p}\beta_i*AR_i + \displaystyle\sum_{j=1}^{q}\beta_{j+p}*MA_j + \epsilon\]</p>
 
 </article></slide><slide class=''><hgroup><h2>Obtained ARIMA-LRM Coefficients</h2></hgroup><article  id="obtained-arima-lrm-coefficients">
 
 <p>From original samples in our thesis, LRM coefficients is obtained</p>
 
-<p>\[\hat{p}_{ECS} = \hat{\beta_0} + \displaystyle\sum_{i=1}^{p}\hat{\beta_i}*AR_i + \displaystyle\sum_{j=1}^{q}\hat{\beta}_{j+p}*MA_j\]</p>
+<p>\[\hat{p}_{ecs} = \hat{\beta_0} + \displaystyle\sum_{i=1}^{p}\hat{\beta_i}*AR_i + \displaystyle\sum_{j=1}^{q}\hat{\beta}_{j+p}*MA_j\]</p>
 
 <p>\(\hat{\beta_0}=0.240\) | Intercept Estimate</p>
 
@@ -174,11 +174,11 @@ AR_{1_n} &amp; AR_{2_n} &amp; \dots &amp; AR_{p_n} &amp; MA_{1_n} &amp; MA_{2_n}
 <li>Upload an example file which has four columns: GPS Time, T2C, NG and IGV</li>
 <li>Calculate VG values by row</li>
 <li>Plot \(VG_t\); \(diff(VG_t)\); \(acf(diff(VG_t))\) and \(pacf(diff(VG_t))\)</li>
-<li>Calculate \(\hat{p}\)
+<li>Calculate \(\hat{p}_{ECS}\)
 
 <ul>
-<li>IF \(\hat{p}&gt;0.5\), display &quot;<strong>WARNING: COMPRESSOR STALL IN NEXT FLIGHT</strong>&quot;</li>
-<li>IF \(\hat{p}&lt;0.5\), display &quot;<strong>CLEAR: NORMAL CAUTION APPLY IN NEXT FLIGHT</strong>&quot;</li>
+<li>IF \(\hat{p}_{ecs}&gt;0.5\), &quot;<strong>WARNING: COMPRESSOR STALL IN NEXT FLIGHT</strong>&quot;</li>
+<li>IF \(\hat{p}_{ecs}&lt;0.5\), &quot;<strong>CLEAR: NORMAL CAUTION APPLY IN NEXT FLIGHT</strong>&quot;</li>
 </ul></li>
 </ul>
 
@@ -198,12 +198,12 @@ plot(VG,ylab=&quot;Time Series of VG&quot;);plot(xd,ylab=&quot;First Order Diffe
 
 <table class = 'rmdtable'>
 <tr class="header">
-<th align="left">Coef_0</th>
 <th align="left">Coef_AR1</th>
 <th align="left">Coef_AR2</th>
 <th align="left">Coef_AR3</th>
 <th align="left">Coef_AR4</th>
 <th align="left">Coef_AR5</th>
+<th align="left">Coef_AR6</th>
 </tr>
 <tr class="odd">
 <td align="left">-6.99633e-02</td>
@@ -217,12 +217,12 @@ plot(VG,ylab=&quot;Time Series of VG&quot;);plot(xd,ylab=&quot;First Order Diffe
 
 <table class = 'rmdtable'>
 <tr class="header">
-<th align="left">Coef_AR6</th>
 <th align="left">Coef_AR7</th>
 <th align="left">Coef_AR8</th>
 <th align="left">Coef_AR9</th>
 <th align="left">Coef_AR10</th>
 <th align="left">Coef_AR11</th>
+<th align="left">Coef_AR12</th>
 </tr>
 <tr class="odd">
 <td align="left">9.70626e-03</td>
@@ -236,7 +236,6 @@ plot(VG,ylab=&quot;Time Series of VG&quot;);plot(xd,ylab=&quot;First Order Diffe
 
 <table class = 'rmdtable'>
 <tr class="header">
-<th align="left">Coef_AR12</th>
 <th align="left">Coef_MA1</th>
 <th align="left">Coef_MA2</th>
 <th align="left">Coef_MA3</th>
@@ -247,7 +246,6 @@ plot(VG,ylab=&quot;Time Series of VG&quot;);plot(xd,ylab=&quot;First Order Diffe
 <td align="left">2.40141e-02</td>
 <td align="left">-3.27156e-03</td>
 <td align="left">-7.56296e-04</td>
-<td align="left">7.50036e-04</td>
 </tr>
 </table>
 
@@ -256,16 +254,16 @@ plot(VG,ylab=&quot;Time Series of VG&quot;);plot(xd,ylab=&quot;First Order Diffe
 <pre class = 'prettyprint lang-r'>Coef_training &lt;- c(0.240, 5.348, 5.967, 9.755, -2.721, 4.616, 5.575, -0.447, 2.163, 
                    2.471, 13.484, 0.792, 11.931, 5.831, -2.100, 4.201, -5.785)
 p &lt;- Coef_training[1]
-for (i in 2:17) {
-  p &lt;- p + as.numeric(Coef_training[i]) * as.numeric(tab_coef[&quot;coef_calculated&quot;, i])
+for (i in 1:16) {
+  p &lt;- p + as.numeric(Coef_training[i + 1]) * as.numeric(tab_coef[&quot;coef_calculated&quot;, i])
 }
 if ((p &lt;- format(p, digits=2)) &gt; 0.5) {
-  cat(&quot;**WARNING: COMPRESSOR STALL IN NEXT FLIGHT**&quot;, &quot;(p=&quot;, p, &quot;)&quot;, sep=&quot;&quot;)
+  cat(&quot;**WARNING: COMPRESSOR STALL IN NEXT FLIGHT  **&quot;,&quot;($\\hat p_{ecs}=&quot;,p,&quot;$)&quot;,sep=&quot;&quot;)
 } else {
-  cat(&quot;**CLEAR: NORMAL CAUTION APPLY IN NEXT FLIGHT**&quot;, &quot;(p=&quot;, p, &quot;)&quot;, sep=&quot;&quot;)
+  cat(&quot;**CLEAR: NORMAL CAUTION APPLY IN NEXT FLIGHT  **&quot;,&quot;($\\hat p_{ecs}=&quot;,p,&quot;$)&quot;,sep=&quot;&quot;)
 }</pre>
 
-<p><strong>CLEAR: NORMAL CAUTION APPLY IN NEXT FLIGHT</strong>(p=0.31)</p></article></slide>
+<p><strong>CLEAR: NORMAL CAUTION APPLY IN NEXT FLIGHT </strong>(\(\hat p_{ecs}=0.041\))</p></article></slide>
 
 
   <slide class="backdrop"></slide>
