@@ -101,7 +101,7 @@ x <- read.csv("810962-1624-LEFT-example-rted.csv"); VG <- ts(vg_cal(x)); xd <- d
 plot(VG,ylab="Time Series of VG");plot(xd,ylab="First Order Difference of VG");acf(xd); pacf(xd)
 ```
 
-![](Engine_Project_files/figure-html/unnamed-chunk-2-1.png)
+![](Engine_Project_files/figure-html/4figures-1.png)
 
 ## Calculate $arima(p,0,q)$ Coefficients
 Where **$arima(12, 0, 4)$** model has been used.

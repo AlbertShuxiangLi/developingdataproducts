@@ -117,7 +117,7 @@ vg_cal <- function(x) {
 }
 ```
 
-```{r, Warning=FALSE, cache=TRUE}
+```{r, 4figures, Warning=FALSE, cache=TRUE}
 par(mar=c(1.5,5,.1,1));par(mfrow=c(2, 2))
 x <- read.csv("810962-1624-LEFT-example-rted.csv"); VG <- ts(vg_cal(x)); xd <- diff(VG)
 plot(VG,ylab="Time Series of VG");plot(xd,ylab="First Order Difference of VG");acf(xd); pacf(xd)
