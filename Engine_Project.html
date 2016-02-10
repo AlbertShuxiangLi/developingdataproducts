@@ -122,20 +122,14 @@
 
 <p>In the engine training dataset which contains \(N\) engines, \(M\) with <em>compressor stall</em> thus outcome \(y_i=1\); for others clear of faults \(y_i=0\), where \((i=1,2,...,n)\).</p>
 
-<p>\[\left(
-\begin{matrix}
-y_1\\
-y_2\\
-\vdots \\
-y_m\\
-y_{m+1}\\
-\vdots\\
-y_n
-\end{matrix}
-\right) \sim \left(
-\begin{matrix}
+<p>\[\left( \begin{matrix}
+y_1\\ y_2\\ \vdots \\ y_m\\ y_{m+1}\\ \vdots\\ y_n \end{matrix}
+\right) \sim \left( \begin{matrix}
 AR_{1_1} &amp; AR_{2_1} &amp; \dots &amp; AR_{p_1} &amp; MA_{1_1} &amp; MA_{2_1} &amp; \dots &amp; MA_{q_1}\\
 AR_{1_2} &amp; AR_{2_2} &amp; \dots &amp; AR_{p_2} &amp; MA_{1_2} &amp; MA_{2_2} &amp; \dots &amp; MA_{q_2}\\
+\vdots    &amp; \vdots    &amp; \ddots &amp; \vdots    &amp; \vdots    &amp; \vdots    &amp; \ddots &amp; \vdots\\
+AR_{1_m} &amp; AR_{2_m} &amp; \dots &amp; AR_{p_m} &amp; MA_{1_m} &amp; MA_{2_m} &amp; \dots &amp; MA_{q_m}\\
+AR_{1_{m+1}} &amp; AR_{2_{m+1}} &amp; \dots &amp; AR_{p_{m+1}} &amp; MA_{1_{m+1}} &amp; MA_{2_{m+1}} &amp; \dots &amp; MA_{q_{m+1}}\\
 \vdots    &amp; \vdots    &amp; \ddots &amp; \vdots    &amp; \vdots    &amp; \vdots    &amp; \ddots &amp; \vdots\\
 AR_{1_n} &amp; AR_{2_n} &amp; \dots &amp; AR_{p_n} &amp; MA_{1_n} &amp; MA_{2_n} &amp; \dots &amp; MA_{q_n}
 \end{matrix}\right)\]</p>
@@ -152,7 +146,7 @@ AR_{1_n} &amp; AR_{2_n} &amp; \dots &amp; AR_{p_n} &amp; MA_{1_n} &amp; MA_{2_n}
 
 <p>\(\hat{\beta_0}=0.240\) | Intercept Estimate</p>
 
-<p>\(\hat{\beta_1}=5.348, \hat{\beta_2}=5.967, \hat{\beta_3}=9.755, \hat{\beta_4}=-2.721\) \(\hat{\beta_5}=4.616, \hat{\beta_6}=5.575, \hat{\beta_7}=-0.447, \hat{\beta_8}=2.163\) \(\hat{\beta_9}=2.471, \hat{\beta}_{10}=13.484, \hat{\beta}_{11}=0.792, \hat{\beta}_{12}=11.931\) | \(AR_1\) ~ \(AR_{12}\) Estimates</p>
+<p>\(\hat{\beta_1}=5.348\), \(\hat{\beta_2}=5.967\), \(\hat{\beta_3}=9.755\), \(\hat{\beta_4}=-2.721\), \(\hat{\beta_5}=4.616\), \(\hat{\beta_6}=5.575\)<br/>\(\hat{\beta_7}=-0.447\), \(\hat{\beta_8}=2.163\), \(\hat{\beta_9}=2.471\), \(\hat{\beta}_{10}=13.484\), \(\hat{\beta}_{11}=0.792\), \(\hat{\beta}_{12}=11.931\)<br/>| \(AR_1\) ~ \(AR_{12}\) Estimates</p>
 
 <p>\(\hat{\beta}_{13}=5.831, \hat{\beta}_{14}=-2.100, \hat{\beta}_{15}=4.201, \hat{\beta}_{16}=-5.785\) | \(MA_1\) ~ \(MA_4\) Estimates</p>
 
@@ -192,9 +186,9 @@ plot(VG,ylab=&quot;Time Series of VG&quot;);plot(xd,ylab=&quot;First Order Diffe
 
 </article></slide><slide class=''><hgroup><h2>Calculate \(arima(p,0,q)\) Coefficients</h2></hgroup><article  id="calculate-arimap0q-coefficients">
 
-<p>Where <strong>\(arima(12, 0, 4)\)</strong> model has been used.</p>
+<pre class = 'prettyprint lang-r'>arimaFit &lt;- arima(xd, order = c(12,0,4), optim.method = &quot;Nelder-Mead&quot;)</pre>
 
-<pre class = 'prettyprint lang-r'>arimaFit &lt;- arima(xd,order=c(12,0,4),optim.method=&quot;Nelder-Mead&quot;)</pre>
+<pre class = 'prettyprint lang-r'>for (k in 1:16) {tab_coef[1, k] &lt;- format(as.numeric(arimaFit$coef[k]),scientific=T,digits=6)}</pre>
 
 <table class = 'rmdtable'>
 <tr class="header">
@@ -251,19 +245,19 @@ plot(VG,ylab=&quot;Time Series of VG&quot;);plot(xd,ylab=&quot;First Order Diffe
 
 </article></slide><slide class=''><hgroup><h2>Predict Engine Compressor Stall</h2></hgroup><article  id="predict-engine-compressor-stall">
 
-<pre class = 'prettyprint lang-r'>Coef_training &lt;- c(0.240, 5.348, 5.967, 9.755, -2.721, 4.616, 5.575, -0.447, 2.163, 
-                   2.471, 13.484, 0.792, 11.931, 5.831, -2.100, 4.201, -5.785)
-p &lt;- Coef_training[1]
+<pre class = 'prettyprint lang-r'>Coef_training &lt;- c(0.240, 5.348, 5.967, 9.755, -2.721, 4.616, 5.575, -0.447, 
+                    2.163, 2.471, 13.484, 0.792, 11.931, 5.831, -2.100, 4.201, -5.785)
+p &lt;- as.numeric(Coef_training[1])
 for (i in 1:16) {
   p &lt;- p + as.numeric(Coef_training[i + 1]) * as.numeric(tab_coef[&quot;coef_calculated&quot;, i])
 }
-if ((p &lt;- format(p, digits=2)) &gt; 0.5) {
-  cat(&quot;**WARNING: COMPRESSOR STALL IN NEXT FLIGHT  **&quot;,&quot;($\\hat p_{ecs}=&quot;,p,&quot;$)&quot;,sep=&quot;&quot;)
+if ((p &lt;- format(p, digits = 2)) &gt; 0.5) {
+  cat(&quot;**WARNING: COMPRESSOR STALL IN NEXT FLIGHT**&quot;, &quot;$(\\hat p_{ecs}=&quot;, p, &quot;)$&quot;)
 } else {
-  cat(&quot;**CLEAR: NORMAL CAUTION APPLY IN NEXT FLIGHT  **&quot;,&quot;($\\hat p_{ecs}=&quot;,p,&quot;$)&quot;,sep=&quot;&quot;)
+  cat(&quot;**CLEAR: NORMAL CAUTION APPLY IN NEXT FLIGHT**&quot;, &quot;$(\\hat p_{ecs}=&quot;, p, &quot;)$&quot;)
 }</pre>
 
-<p><strong>CLEAR: NORMAL CAUTION APPLY IN NEXT FLIGHT </strong>(\(\hat p_{ecs}=0.041\))</p></article></slide>
+<p><strong>CLEAR: NORMAL CAUTION APPLY IN NEXT FLIGHT</strong> \((\hat p_{ecs}= 0.041 )\)</p></article></slide>
 
 
   <slide class="backdrop"></slide>

@@ -35,22 +35,16 @@ Where $X_t$ is the VG value at the time $t$, $AR_i(i=1,2, ..., p)$ is the AutoRe
 This model is denoted as **$arima(p,0,q)$**. 
 
 ## ARIMA-LRM Method  (2)
-In the engine training dataset which contains $N$ engines, $M$ with _compressor stall_ thus outcome $y_i=1$; for others clear of faults $y_i=0$, where $(i=1,2,...,n)$.
-
-$$\left(
-\begin{matrix}
-y_1\\
-y_2\\
-\vdots \\
-y_m\\
-y_{m+1}\\
-\vdots\\
-y_n
-\end{matrix}
-\right) \sim \left(
-\begin{matrix}
+In the engine training dataset which contains $N$ engines, $M$ with _compressor stall_ thus outcome $y_i=1$; for others clear of faults $y_i=0$, where $(i=1,2,...,n)$.  
+  
+$$\left( \begin{matrix}
+y_1\\ y_2\\ \vdots \\ y_m\\ y_{m+1}\\ \vdots\\ y_n \end{matrix}
+\right) \sim \left( \begin{matrix}
 AR_{1_1} & AR_{2_1} & \dots & AR_{p_1} & MA_{1_1} & MA_{2_1} & \dots & MA_{q_1}\\
 AR_{1_2} & AR_{2_2} & \dots & AR_{p_2} & MA_{1_2} & MA_{2_2} & \dots & MA_{q_2}\\
+\vdots    & \vdots    & \ddots & \vdots    & \vdots    & \vdots    & \ddots & \vdots\\
+AR_{1_m} & AR_{2_m} & \dots & AR_{p_m} & MA_{1_m} & MA_{2_m} & \dots & MA_{q_m}\\
+AR_{1_{m+1}} & AR_{2_{m+1}} & \dots & AR_{p_{m+1}} & MA_{1_{m+1}} & MA_{2_{m+1}} & \dots & MA_{q_{m+1}}\\
 \vdots    & \vdots    & \ddots & \vdots    & \vdots    & \vdots    & \ddots & \vdots\\
 AR_{1_n} & AR_{2_n} & \dots & AR_{p_n} & MA_{1_n} & MA_{2_n} & \dots & MA_{q_n}
 \end{matrix}\right)$$
@@ -66,9 +60,8 @@ $$\hat{p}_{ecs} = \hat{\beta_0} + \displaystyle\sum_{i=1}^{p}\hat{\beta_i}*AR_i 
 
 $\hat{\beta_0}=0.240$ | Intercept Estimate
 
-$\hat{\beta_1}=5.348, \hat{\beta_2}=5.967, \hat{\beta_3}=9.755, \hat{\beta_4}=-2.721$
-$\hat{\beta_5}=4.616, \hat{\beta_6}=5.575, \hat{\beta_7}=-0.447, \hat{\beta_8}=2.163$
-$\hat{\beta_9}=2.471, \hat{\beta}_{10}=13.484, \hat{\beta}_{11}=0.792, \hat{\beta}_{12}=11.931$
+$\hat{\beta_1}=5.348$, $\hat{\beta_2}=5.967$, $\hat{\beta_3}=9.755$, $\hat{\beta_4}=-2.721$, $\hat{\beta_5}=4.616$, $\hat{\beta_6}=5.575$  
+$\hat{\beta_7}=-0.447$, $\hat{\beta_8}=2.163$, $\hat{\beta_9}=2.471$, $\hat{\beta}_{10}=13.484$, $\hat{\beta}_{11}=0.792$, $\hat{\beta}_{12}=11.931$  
 | $AR_1$ ~ $AR_{12}$ Estimates
 
 $\hat{\beta}_{13}=5.831, \hat{\beta}_{14}=-2.100, \hat{\beta}_{15}=4.201, \hat{\beta}_{16}=-5.785$
@@ -123,37 +116,36 @@ plot(VG,ylab="Time Series of VG");plot(xd,ylab="First Order Difference of VG");a
 ```
 
 ## Calculate $arima(p,0,q)$ Coefficients
-Where **$arima(12, 0, 4)$** model has been used.
-
 ```{r, cache=TRUE, warning=FALSE}
-arimaFit <- arima(xd,order=c(12,0,4),optim.method="Nelder-Mead")
+arimaFit <- arima(xd, order = c(12,0,4), optim.method = "Nelder-Mead")
 ```
 ```{r, echo=FALSE, cache=TRUE, warning=FALSE}
-tab_coef <- data.frame(); rownames(tab_coef[1:2, ]) <- c("coef_names", "coef_calculated") 
-for (k in 1:16) {
-  tab_coef[1, k] <- paste("Coefficient_", k, sep="")
-  tab_coef[2, k] <- format(as.numeric(arimaFit$coef[k]), scientific=T, digits=6)
-}
+tab_coef <- data.frame(); rownames(tab_coef[1,]) <- "coef_calculated" 
+```
+```{r, echo=TRUE, cache=TRUE, warning=FALSE}
+for (k in 1:16) {tab_coef[1, k] <- format(as.numeric(arimaFit$coef[k]),scientific=T,digits=6)}
+```
+```{r, echo=FALSE, cache=TRUE, warning=FALSE}
 tab_colNames <- c("Coef_AR1", "Coef_AR2", "Coef_AR3", "Coef_AR4", "Coef_AR5", "Coef_AR6", 
                   "Coef_AR7", "Coef_AR8", "Coef_AR9", "Coef_AR10", "Coef_AR11", "Coef_AR12", 
                   "Coef_MA1", "Coef_MA2", "Coef_MA3", "Coef_MA4")
-knitr::kable(tab_coef[2, 1:6], col.names=tab_colNames[1:6], row.names=F) 
-knitr::kable(tab_coef[2, 7:12], col.names=tab_colNames[7:12], row.names=F)
-knitr::kable(tab_coef[2, 13:16], col.names=tab_colNames[13:16], row.names=F)
+knitr::kable(tab_coef[1,1:6], col.names=tab_colNames[1:6], row.names=F) 
+knitr::kable(tab_coef[1,7:12], col.names=tab_colNames[7:12], row.names=F)
+knitr::kable(tab_coef[1,13:16], col.names=tab_colNames[13:16], row.names=F)
 ```
 
 ## Predict Engine Compressor Stall
 ```{r, cache=TRUE, warning=FALSE, results='asis'}
-Coef_training <- c(0.240, 5.348, 5.967, 9.755, -2.721, 4.616, 5.575, -0.447, 2.163, 
-                   2.471, 13.484, 0.792, 11.931, 5.831, -2.100, 4.201, -5.785)
-p <- Coef_training[1]
+Coef_training <- c(0.240, 5.348, 5.967, 9.755, -2.721, 4.616, 5.575, -0.447, 
+                    2.163, 2.471, 13.484, 0.792, 11.931, 5.831, -2.100, 4.201, -5.785)
+p <- as.numeric(Coef_training[1])
 for (i in 1:16) {
   p <- p + as.numeric(Coef_training[i + 1]) * as.numeric(tab_coef["coef_calculated", i])
 }
-if ((p <- format(p, digits=2)) > 0.5) {
-  cat("**WARNING: COMPRESSOR STALL IN NEXT FLIGHT  **","($\\hat p_{ecs}=",p,"$)",sep="")
+if ((p <- format(p, digits = 2)) > 0.5) {
+  cat("**WARNING: COMPRESSOR STALL IN NEXT FLIGHT**", "$(\\hat p_{ecs}=", p, ")$")
 } else {
-  cat("**CLEAR: NORMAL CAUTION APPLY IN NEXT FLIGHT  **","($\\hat p_{ecs}=",p,"$)",sep="")
+  cat("**CLEAR: NORMAL CAUTION APPLY IN NEXT FLIGHT**", "$(\\hat p_{ecs}=", p, ")$")
 }
 ```
 
