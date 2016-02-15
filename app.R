@@ -86,8 +86,9 @@ ui <- shinyUI(fluidPage(
   p(withMathJax("$$X_t (\\text{Variable Geometry } ) = f (T2C, NG, IGV)$$"),
   p(withMathJax("$$X_t = \\delta + AR_1X_{t-1} + AR_2X_{t-2} + ... + AR_pX_{t-p} + A_t + MA_1A_{t-1} 
                 + MA_2A_{t-2} + ... + MA_qA_{t-q}$$")),
-  p(withMathJax("$$\\text{PLEASE DOWNLOAD example.csv from https://github.com/AlbertShuxiangLi/developingdataproducts/tree/gh-pages/data 
-    (use 'save link as ...')}$$")),
+  p(withMathJax("$$\\text{PLEASE DOWNLOAD example.zip from 
+https://github.com/AlbertShuxiangLi/developingdataproducts/blob/gh-pages/data/example.zip
+    (click 'Raw' button, then unzip locally)}$$")),
   
     sidebarLayout(
     sidebarPanel(
