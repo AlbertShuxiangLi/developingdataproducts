@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Predict Compressor Stall Fault</title>
+  <meta charset="utf-8">
+  <meta name="description" content="Predict Compressor Stall Fault">
+  <meta name="author" content="Albert Shuxiang Li">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="http://slidifylibraries2.googlecode.com/git/inst/libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="http://slidifylibraries2.googlecode.com/git/inst/libraries/frameworks/io2012/css/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="http://slidifylibraries2.googlecode.com/git/inst/libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="http://slidifylibraries2.googlecode.com/git/inst/libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->  
+  
+  <!-- Grab CDN jQuery, fall back to local if offline -->
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+  <script>window.jQuery || document.write('<script src="http://slidifylibraries2.googlecode.com/git/inst/libraries/widgets/quiz/js/jquery.js"><\/script>')</script> 
+  <script data-main="http://slidifylibraries2.googlecode.com/git/inst/libraries/frameworks/io2012/js/slides" 
+    src="http://slidifylibraries2.googlecode.com/git/inst/libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+  
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+        <slide class="title-slide segue nobackground">
+  <hgroup class="auto-fadein">
+    <h1>Predict Compressor Stall Fault</h1>
+    <h2>Innovative ARIMA-LRM Method for Turbofan Aircraft Engines</h2>
+    <p>Albert Shuxiang Li<br/>A Systems Engineering Engineer</p>
+  </hgroup>
+  <article></article>  
+</slide>
+    
+
+    <!-- SLIDES -->
+    <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2>Project Background</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>QUESTION TO BE ANSWERED: Is there an engine compressor stall fault on next flight based on current flight engine data?</p>
+
+<p>Liner Regression algorithm is used in the Machine Learning process. And, according to our Systems Engineering thesis, &quot;A Method To Predict Compressor Stall In The TF34-100 Turbofan Engine Utilizing Real-Time Performance Data&quot;, the selected features are \(arima(p, 0, q)\) coefficients of first order difference of VG (Variable Geometry) which is calculated from 3 engine sensors (T2C, NG and IGV). </p>
+
+<p>A minimalist mathematical description for our modeling methods is on next page.</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-2" style="background:;">
+  <article data-timings="">
+    <ul>
+<li>ARIMA-LRM Method</li>
+</ul>
+
+<p>An \(arima(p,0,q)\) model is fitted for engine sensor data (a Time Series data):</p>
+
+<p>\[X_t = f(t2c, ng, igv); X_t = \delta + C_1X_{t-1} + ... + C_pX_{t-p} + A_t + D_1A_{t-1} + ... + D_qA_{t-q}\]</p>
+
+<p>Where \(C_i=AR_i, D_j=MA_j\); Then $ arimaFit \$coef[k] $ are used as predictors in a Linear Regression Model. LRM coefficients (\(\hat{\beta}_0, \hat{\beta}_1, ..., \hat{\beta}_{16}\)) are obtained from training dataset in our thesis, where <strong>\(arima(12, 0, 4)\)</strong> model has been used.</p>
+
+<p>\[p = \beta_0 + \displaystyle\sum_{i=1}^{p}\beta_i*AR_i + \displaystyle\sum_{j=1}^{q}\beta_{j+p}*MA_j + \epsilon; \hat{p} = \hat{\beta_0} + \displaystyle\sum_{i=1}^{p}\hat{\beta_i}*AR_i + \displaystyle\sum_{j=1}^{q}\hat{\beta}_{j+p}*MA_j\]</p>
+
+<ul>
+<li>Process in shinyapps.io Project
+
+<ul>
+<li>Upload an example file which has four columns: GPS Time, T2C, NG and IGV</li>
+<li>Calculate VG values (\(=x\)) by row; Plot \(x\); \(diff(x)\); \(acf(diff(x))\) and \(pacf(diff(x))\)</li>
+<li>Calculate \(\hat{p}\), IF \(\hat{p} > 0.5\), &quot;<strong>WARNING: COMPRESSOR STALL IN NEXT FLIGHT</strong>&quot;</li>
+<li>Calculate \(\hat{p}\), IF \(\hat{p} < 0.5\), &quot;<strong>CLEAR: NORMAL CAUTION APPLY IN NEXT FLIGHT</strong>&quot;</li>
+</ul></li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-3" style="background:;">
+  <hgroup>
+    <h2>Load, Calculate and Plot Data</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">par(mar=c(2,5,.5,1)); par(mfrow=c(2, 2)); xd &lt;- diff(x&lt;-ts(vg_cal(read.csv(&quot;data\\example.csv&quot;))))
+plot(x,ylab=&quot;Time Series of VG&quot;); plot(xd,ylab=&quot;First Order Difference of VG&quot;); acf(xd); pacf(xd)
+</code></pre>
+
+<p><img src="data:image/png;base64,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" alt="plot of chunk 4figures"></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-4" style="background:;">
+  <hgroup>
+    <h2>Calculate \(arima(p,0,q)\) and Predict CS Faults</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">arimaFit &lt;- arima(xd, order = c(12,0,4), optim.method = &quot;Nelder-Mead&quot;)
+</code></pre>
+
+<pre><code class="r">Coef_training &lt;- c(0.240, 5.348, 5.967, 9.755, -2.721, 4.616, 5.575, -0.447, 
+                    2.163, 2.471, 13.484, 0.792, 11.931, 5.831, -2.100, 4.201, -5.785)
+p &lt;- as.numeric(Coef_training[1])
+for (i in 1:16) {
+  p &lt;- p + as.numeric(Coef_training[i + 1]) * as.numeric(tab_coef[&quot;coef_calculated&quot;, i])
+}
+if ((p &lt;- format(p, digits = 2)) &gt; 0.5) {
+  cat(&quot;**WARNING: COMPRESSOR STALL IN NEXT FLIGHT**&quot;, &quot;$(\\hat p_{ecs}=&quot;, p, &quot;)$&quot;)} else {
+  cat(&quot;**CLEAR: NORMAL CAUTION APPLY IN NEXT FLIGHT**&quot;, &quot;$(\\hat p_{ecs}=&quot;, p, &quot;)$&quot;)
+}
+</code></pre>
+
+<p><strong>CLEAR: NORMAL CAUTION APPLY IN NEXT FLIGHT</strong> \((\hat p_{ecs}= 0.041 )\)</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+  <div class="pagination pagination-small" id='io2012-ptoc' style="display:none;">
+    <ul>
+      <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=1 title='Project Background'>
+         1
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=2 title='NA'>
+         2
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=3 title='Load, Calculate and Plot Data'>
+         3
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=4 title='Calculate \(arima(p,0,q)\) and Predict CS Faults'>
+         4
+      </a>
+    </li>
+  </ul>
+  </div>  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+  <!-- Load Javascripts for Widgets -->
+  
+  <!-- MathJax: Fall back to local if CDN offline but local image fonts are not supported (saves >100MB) -->
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+      }
+    });
+  </script>
+  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  <!-- <script src="https://c328740.ssl.cf1.rackcdn.com/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  </script> -->
+  <script>window.MathJax || document.write('<script type="text/x-mathjax-config">MathJax.Hub.Config({"HTML-CSS":{imageFont:null}});<\/script><script src="http://slidifylibraries2.googlecode.com/git/inst/libraries/widgets/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"><\/script>')
+</script>
+<!-- LOAD HIGHLIGHTER JS FILES -->
+  <script src="http://slidifylibraries2.googlecode.com/git/inst/libraries/highlighters/highlight.js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <!-- DONE LOADING HIGHLIGHTER JS FILES -->
+   
+  </html>

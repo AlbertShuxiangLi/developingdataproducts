@@ -1,0 +1,98 @@
+---
+title       : "Predict Compressor Stall Fault"
+subtitle    : "Innovative ARIMA-LRM Method for Turbofan Aircraft Engines"
+author      : "Albert Shuxiang Li"
+job         : "A Systems Engineering Engineer"
+date        : "February 5, 2016"
+framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
+highlighter : highlight.js  # {highlight.js, prettify, highlight}
+hitheme     : tomorrow      # 
+widgets     : mathjax       # {mathjax, quiz, bootstrap}
+mode        : standalone    # {standalone, draft, selfcontained}
+knit        : slidify::knit2slides
+output:
+  slidy_presentation: 
+    keep_md: yes
+    widescreen: yes
+---
+
+## Project Background
+
+QUESTION TO BE ANSWERED: Is there an engine compressor stall fault on next flight based on current flight engine data?
+
+Liner Regression algorithm is used in the Machine Learning process. And, according to our Systems Engineering thesis, "A Method To Predict Compressor Stall In The TF34-100 Turbofan Engine Utilizing Real-Time Performance Data", the selected features are $arima(p, 0, q)$ coefficients of first order difference of VG (Variable Geometry) which is calculated from 3 engine sensors (T2C, NG and IGV). 
+
+A minimalist mathematical description for our modeling methods is on next page.
+
+---
+
+- ARIMA-LRM Method
+
+An $arima(p,0,q)$ model is fitted for engine sensor data (a Time Series data):
+
+$$X_t = f(t2c, ng, igv); X_t = \delta + C_1X_{t-1} + ... + C_pX_{t-p} + A_t + D_1A_{t-1} + ... + D_qA_{t-q}$$
+
+Where $C_i=AR_i, D_j=MA_j$; Then $ arimaFit \\$coef[k] $ are used as predictors in a Linear Regression Model. LRM coefficients ($\hat{\beta}_0, \hat{\beta}_1, ..., \hat{\beta}_{16}$) are obtained from training dataset in our thesis, where **$arima(12, 0, 4)$** model has been used.
+
+$$p = \beta_0 + \displaystyle\sum_{i=1}^{p}\beta_i*AR_i + \displaystyle\sum_{j=1}^{q}\beta_{j+p}*MA_j + \epsilon; \hat{p} = \hat{\beta_0} + \displaystyle\sum_{i=1}^{p}\hat{\beta_i}*AR_i + \displaystyle\sum_{j=1}^{q}\hat{\beta}_{j+p}*MA_j$$
+
+- Process in shinyapps.io Project
+  + Upload an example file which has four columns: GPS Time, T2C, NG and IGV
+  + Calculate VG values ($=x$) by row; Plot $x$; $diff(x)$; $acf(diff(x))$ and $pacf(diff(x))$
+  + Calculate $\hat{p}$, IF $\hat{p} > 0.5$, "**WARNING: COMPRESSOR STALL IN NEXT FLIGHT**"
+  + Calculate $\hat{p}$, IF $\hat{p} < 0.5$, "**CLEAR: NORMAL CAUTION APPLY IN NEXT FLIGHT**"
+
+--- 
+
+## Load, Calculate and Plot Data
+```{r, echo=FALSE}
+vg_cal <- function(x) {
+  VGx <- data.frame()
+  for (i in 1:nrow(x)) {
+    ng <- x[i, 3]; t2c <- x[i, 2]; igv <- x[i, 4]
+    ngc <- ng/sqrt((t2c+273.15)/288.15)
+  if (t2c < 23.8) { vg <- igv + 0.862*ngc - 112.470 }
+  if (t2c >= 23.8 & t2c <= 37.7) { vg <- igv + (0.862*ngc - 112.5) + (1.005*ngc - 71.408)*(t2c - 23.889)/13.9 }
+  if (t2c > 37.7) { vg <- igv + 1.439*ngc - 150.898 }
+  if(vg > 9.999) { vg <- NA }
+  if(vg < -9.999) { vg <- NA }
+  VGx <- rbind(VGx, vg)
+  }
+  VGx <- VGx[complete.cases(VGx), ]
+  return(VGx)
+}
+```
+```{r, 4figures, Warning=FALSE, fig.height=6, fig.width=12}
+par(mar=c(2,5,.5,1)); par(mfrow=c(2, 2)); xd <- diff(x<-ts(vg_cal(read.csv("data\\example.csv"))))
+plot(x,ylab="Time Series of VG"); plot(xd,ylab="First Order Difference of VG"); acf(xd); pacf(xd)
+```
+
+--- 
+
+## Calculate $arima(p,0,q)$ and Predict CS Faults
+```{r, arima_model, cache=TRUE, warning=FALSE}
+arimaFit <- arima(xd, order = c(12,0,4), optim.method = "Nelder-Mead")
+```
+```{r, echo=FALSE, warning=FALSE, results='hide'}
+tab_coef <- data.frame(); rownames(tab_coef[1,]) <- "coef_calculated" 
+for (k in 1:16) {tab_coef[1, k] <- arimaFit$coef[k]}
+tab_colNames <- c("Coef_AR1", "Coef_AR2", "Coef_AR3", "Coef_AR4", "Coef_AR5", "Coef_AR6", 
+                  "Coef_AR7", "Coef_AR8", "Coef_AR9", "Coef_AR10", "Coef_AR11", "Coef_AR12", 
+                  "Coef_MA1", "Coef_MA2", "Coef_MA3", "Coef_MA4")
+knitr::kable(tab_coef[1,1:6], col.names=tab_colNames[1:6], row.names=F, digits=3) 
+knitr::kable(tab_coef[1,7:12], col.names=tab_colNames[7:12], row.names=F)
+knitr::kable(tab_coef[1,13:16], col.names=tab_colNames[13:16], row.names=F)
+```
+
+```{r, warning=FALSE, results='asis'}
+Coef_training <- c(0.240, 5.348, 5.967, 9.755, -2.721, 4.616, 5.575, -0.447, 
+                    2.163, 2.471, 13.484, 0.792, 11.931, 5.831, -2.100, 4.201, -5.785)
+p <- as.numeric(Coef_training[1])
+for (i in 1:16) {
+  p <- p + as.numeric(Coef_training[i + 1]) * as.numeric(tab_coef["coef_calculated", i])
+}
+if ((p <- format(p, digits = 2)) > 0.5) {
+  cat("**WARNING: COMPRESSOR STALL IN NEXT FLIGHT**", "$(\\hat p_{ecs}=", p, ")$")} else {
+  cat("**CLEAR: NORMAL CAUTION APPLY IN NEXT FLIGHT**", "$(\\hat p_{ecs}=", p, ")$")
+}
+```
