@@ -23,7 +23,7 @@ server <- shinyServer(function(input, output) {
     inFile <- input$file1
     if (is.null(inFile))
       return(NULL)
-    x_raw <- read.csv(inFile$datapath, header=TRUE, sep=",", quote='"')
+    x_raw <- read.csv(inFile$datapath, header=input$header, sep=input$sep, quote=input$quote)
     x <- ts(vg_cal(x_raw))
     xd <- diff(x)
     par(mar=c(4, 5, 5, 1))
@@ -42,7 +42,7 @@ server <- shinyServer(function(input, output) {
     inFile <- input$file1
     if (is.null(inFile))
       return(NULL)
-    x_raw <- read.csv(inFile$datapath, header=TRUE, sep=",", quote='"')
+    x_raw <- read.csv(inFile$datapath, header=input$header, sep=input$sep, quote=input$quote)
     x <- ts(vg_cal(x_raw))
     xd <- diff(x)
     par(mar=c(4, 5, 5, 1))
@@ -56,7 +56,7 @@ server <- shinyServer(function(input, output) {
     if (is.null(inFile))
       return(NULL)
     t1 <- Sys.time()
-    x_raw <- read.csv(inFile$datapath, header=TRUE, sep=",", quote='"')
+    x_raw <- read.csv(inFile$datapath, header=input$header, sep=input$sep, quote=input$quote)
     x <- ts(vg_cal(x_raw))
     xd <- diff(x)
     arimaFit <- arima(xd, order = c(12,0,4), optim.method = "Nelder-Mead")
@@ -96,11 +96,20 @@ https://github.com/AlbertShuxiangLi/developingdataproducts/blob/gh-pages/data/ex
                       accept=c('text/csv', 
                                'text/comma-separated-values,text/plain', 
                                '.csv')),
-            tags$hr()
+            tags$hr(),
+            checkboxInput('header', 'Header (Must be Checked for Example)', TRUE),
+            radioButtons('sep', 'Separator (Comma Must Be Selected for Example)',
+                         c(Comma =',',
+                         Semicolon=';',
+                          Tab='\t'),
+                          ','),
+            radioButtons('quote', 'Quote',
+                         c(None='',
+                         'Double Quote'='"',
+                          'Single Quote'="'"),
+                          '"')
           ),
-    # Show a tabset that includes a plot, summary, and table view
-    # of the generated distribution
-    mainPanel(
+     mainPanel(
       tabsetPanel(type = "tabs", 
                   tabPanel(withMathJax("$$X_t \\text{ and diff}(X_t) \\text{ Plots}$$"), 
                            plotOutput("plot1")), 
