@@ -1,5 +1,6 @@
 library(shiny)
 
+# Define the formula to calculate the VG values from T2C, NG and IGV
 vg_cal <- function(x) {
   VGx <- data.frame()
   for (i in 1:nrow(x)) {
@@ -16,9 +17,10 @@ vg_cal <- function(x) {
   return(VGx)
 }
 
-# Define server logic for random distribution application
+# Define server logic for prediction application
 server <- shinyServer(function(input, output) {
-  
+
+# Plot time series of VG values; Plot time series of diff(VG)  
   output$plot1 <- renderPlot({
     inFile <- input$file1
     if (is.null(inFile))
@@ -37,7 +39,8 @@ server <- shinyServer(function(input, output) {
              ylim = c(-5, 5),
              main = "First Order Difference of VG", col="blue")
   })
-  
+
+# Plot ACF of diff(VG) for MA explortory; Plot PACF of diff(VG) for AR explortory  
   output$plot2 <- renderPlot({
     inFile <- input$file1
     if (is.null(inFile))
@@ -51,6 +54,7 @@ server <- shinyServer(function(input, output) {
     pacf(xd, ylim=c(-0.2, 0.1), xlab="lag", ylab="PACF", main="Partial ACF of diff(VG)")
   })
 
+# Display the prediction result: CLEAR (p < .5) or WARNING (p > .5)
   output$contents <- renderPrint({
     inFile <- input$file1
     if (is.null(inFile))
@@ -78,11 +82,11 @@ server <- shinyServer(function(input, output) {
 })
 
 
-# Define UI for random distribution application 
+# Define UI for prediction application 
 ui <- shinyUI(fluidPage(
   
   # Application title
-  titlePanel("Predict Compressor Stall Fault"),
+  titlePanel("Predict Aircraft Turbofan Engine Compressor Stall Fault"),
   p(withMathJax("$$X_t (\\text{Variable Geometry } ) = f (T2C, NG, IGV)$$"),
   p(withMathJax("$$X_t = \\delta + AR_1X_{t-1} + AR_2X_{t-2} + ... + AR_pX_{t-p} + A_t + MA_1A_{t-1} 
                 + MA_2A_{t-2} + ... + MA_qA_{t-q}$$")),
