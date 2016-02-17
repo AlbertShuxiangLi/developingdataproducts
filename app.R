@@ -20,6 +20,8 @@ vg_cal <- function(x) {
 # Define server logic for prediction application
 server <- shinyServer(function(input, output) {
 
+# Download example.csv
+  
 # Plot time series of VG values; Plot time series of diff(VG)  
   output$plot1 <- renderPlot({
     inFile <- input$file1
@@ -90,6 +92,9 @@ ui <- shinyUI(fluidPage(
   p(withMathJax("$$X_t (\\text{Variable Geometry } ) = f (T2C, NG, IGV)$$"),
   p(withMathJax("$$X_t = \\delta + AR_1X_{t-1} + AR_2X_{t-2} + ... + AR_pX_{t-p} + A_t + MA_1A_{t-1} 
                 + MA_2A_{t-2} + ... + MA_qA_{t-q}$$")),
+  p(withMathJax("$$p_{engineCompressorStall}=\\beta_0+\\displaystyle\\sum_{i=1}^{p}\\beta_i*AR_i 
+                + \\displaystyle\\sum_{j=1}^{q}\\beta_{j+p}*MA_j + \\epsilon$$")),
+  p(withMathJax("$$\\text{CLICK 'Download example.csv File' at Left Down Corner To Download}$$")),
   p(withMathJax("$$\\text{PLEASE DOWNLOAD example.zip from 
 https://github.com/AlbertShuxiangLi/developingdataproducts/blob/gh-pages/data/example.zip
     (click 'Raw' button, then unzip locally)}$$")),
@@ -111,8 +116,14 @@ https://github.com/AlbertShuxiangLi/developingdataproducts/blob/gh-pages/data/ex
                          c(None='',
                          'Double Quote'='"',
                           'Single Quote'="'"),
-                          '"')
-          ),
+                          '"'),
+            tags$hr(), tags$hr(),
+            tags$a("------------------ github ------------------", 
+                   href="https://github.com/AlbertShuxiangLi/developingdataproducts", 
+                   target="_blank"),
+            tags$hr(), tags$hr(),
+            tags$a(href = 'example.csv', class = "btn", icon("download"), 'Download example.csv File.')      
+            ),
      mainPanel(
       tabsetPanel(type = "tabs", 
                   tabPanel(withMathJax("$$X_t \\text{ and diff}(X_t) \\text{ Plots}$$"), 
