@@ -76,8 +76,10 @@ server <- shinyServer(function(input, output) {
     }
     t2 <- Sys.time() - t1
     if ((p <- format(p, digits = 2)) > 0.5) {
-      cat("WARNING: COMPRESSOR STALL IN NEXT FLIGHT", "( p_hat =", p, ")")} else {
-        cat("CLEAR: NORMAL CAUTION APPLY IN NEXT FLIGHT", "( p_hat =", p, ")")
+      cat("[ X ] WARNING: COMPRESSOR STALL IN NEXT FLIGHT", 
+          "( p_hat =", p, ")")} else {
+      cat("[ X ] CLEAR: NORMAL CAUTION APPLY IN NEXT FLIGHT", 
+          "( p_hat =", p, ")")
       }
   })
   
@@ -94,14 +96,13 @@ ui <- shinyUI(fluidPage(
                 + MA_2A_{t-2} + ... + MA_qA_{t-q}$$")),
   p(withMathJax("$$p_{engineCompressorStall}=\\beta_0+\\displaystyle\\sum_{i=1}^{p}\\beta_i*AR_i 
                 + \\displaystyle\\sum_{j=1}^{q}\\beta_{j+p}*MA_j + \\epsilon$$")),
-  p(withMathJax("$$\\text{CLICK 'Download example.csv File' at Left Down Corner To Download}$$")),
-  p(withMathJax("$$\\text{PLEASE DOWNLOAD example.zip from 
-https://github.com/AlbertShuxiangLi/developingdataproducts/blob/gh-pages/data/example.zip
-    (click 'Raw' button, then unzip locally)}$$")),
+  p(withMathJax("$$\\text{CLICK 'Download example.csv File' at Left Down Corner To Download example.csv}$$")),
+  p(withMathJax("$$\\text{OR go to https://github.com/AlbertShuxiangLi/developingdataproducts/blob/gh-pages/data/example.zip
+    then click 'Raw' button, and unzip locally)}$$")),
   
     sidebarLayout(
     sidebarPanel(
-      fileInput('file1', 'Choose An Example CSV File',
+      fileInput('file1', 'Choose An Example CSV File to Upload for Analysis and Prediction',
                       accept=c('text/csv', 
                                'text/comma-separated-values,text/plain', 
                                '.csv')),
